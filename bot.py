@@ -84,17 +84,13 @@ def main():
     # messages will need to be distinct for each.
     # easiest would be a csv file in the format,
     # id, message, link, image link
-    counter = 0
-    while counter < 20:
-        tweet_contents = prepare_tweet()
-        try:
-            tweet_with_image_from_filename(tweet_contents[0],
-                                           tweet_contents[1])
-            print('Success: ' + tweet_contents[0] + tweet_contents[1])
-        except:
-            print('Fail: ' + tweet_contents[0] + tweet_contents[1])
-        rest(600)
-        counter += 1
+    tweet_contents = prepare_tweet()
+    try:
+        tweet_with_image_from_filename(tweet_contents[0],
+                                       tweet_contents[1])
+        print('Success: ' + tweet_contents[0] + tweet_contents[1])
+    except:
+        print('Fail: ' + tweet_contents[0] + tweet_contents[1])
 
 
 if __name__ == '__main__':
