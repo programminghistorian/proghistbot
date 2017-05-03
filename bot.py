@@ -1,4 +1,4 @@
-import secret
+# import secret
 import os
 import requests
 from tweepy import OAuthHandler, API
@@ -6,13 +6,14 @@ import csv
 import random
 import re
 import time
+from boto.s3.connection import S3Connection
 
 
 def twitter_api():
-    access_token = secret.access_token()
-    access_token_secret = secret.access_token_secret()
-    consumer_key = secret.consumer_key()
-    consumer_secret = secret.consumer_secret()
+    access_token = ACCESS_TOKEN
+    access_token_secret = ACCESS_TOKEN_SECRET
+    consumer_key = CONSUMER_KEY
+    consumer_secret = CONSUMER_SECRET
 
     auth = OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
