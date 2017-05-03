@@ -9,19 +9,11 @@ import time
 
 is_prod = os.environ.get('IS_HEROKU', None)
 
-if is_prod:
-    print(ACCESS_TOKEN)
-    print(ACCESS_TOKEN_SECRET)
-    print(CONSUMER_KEY)
-    print(CONSUMER_SECRET)
-else:
-    ACCESS_TOKEN = os.environ.get('ACCESS_TOKEN')
-    ACCESS_TOKEN_SECRET = os.environ.get('ACCESS_TOKEN_SECRET')
-    CONSUMER_KEY = os.environ.get('CONSUMER_KEY')
-    CONSUMER_SECRET = os.environ.get('CONSUMER_SECRET')
+ACCESS_TOKEN = os.environ.get('ACCESS_TOKEN')
+ACCESS_TOKEN_SECRET = os.environ.get('ACCESS_TOKEN_SECRET')
+CONSUMER_KEY = os.environ.get('CONSUMER_KEY')
+CONSUMER_SECRET = os.environ.get('CONSUMER_SECRET')
 
-print(os.environ['ACCESS_TOKEN'])
-print(os.environ['ACCESS_TOKEN_SECRET'])
 
 def twitter_api():
     access_token = ACCESS_TOKEN
