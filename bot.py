@@ -1,13 +1,19 @@
-# import secret
 import os
 from tweepy import OAuthHandler, API
-import csv
 import random
 import time
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-# You're at the google spreadsheet point - need to install oauth2client
 
+# Test on Production
+# Testing
+# Test the tweets individually
+# Fill out all the data
+# Fill out the data with authors
+# Restart the bot again
+# Spanish translations will need to be entered either on
+# their own spreadsheet with their own bots
+# or just as their own rows here.
 is_prod = os.environ.get('IS_HEROKU', None)
 
 ACCESS_TOKEN = os.environ.get('ACCESS_TOKEN')
@@ -33,17 +39,6 @@ def tweet(message):
     print(message)
     api = twitter_api()
     api.update_status(status=message)
-
-
-def get_tweet_contents_from_csv(filename):
-    """Reads in a csv from given filename. returns a list of dictionary
-    items pertaining to each lesson."""
-    results = []
-    with open(filename) as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            results.append(row)
-    return results
 
 
 def get_tweet_contents_from_google():
