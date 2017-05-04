@@ -46,7 +46,7 @@ def get_tweet_contents_from_google():
     scope = ['https://spreadsheets.google.com/feeds']
 
     credentials = ServiceAccountCredentials.from_json_keyfile_name(
-        'Programming Historian-aa456f0a6b33.json', scope)
+        'Programming_Historian-aa456f0a6b33.json', scope)
 
     gc = gspread.authorize(credentials)
     wks = gc.open_by_key('1o-C-3WwfcEYWipIFb112tkuM-XOI8pVVpA9_sag9Ph8')
