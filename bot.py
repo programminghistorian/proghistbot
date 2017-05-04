@@ -1,11 +1,12 @@
 # import secret
 import os
-import requests
 from tweepy import OAuthHandler, API
 import csv
 import random
-import re
 import time
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+# You're at the google spreadsheet point - need to install oauth2client
 
 is_prod = os.environ.get('IS_HEROKU', None)
 
@@ -27,28 +28,14 @@ def twitter_api():
     return api
 
 
-def tweet_image_from_url(url, message):
-    """tweets with an image from a url. """
+def tweet(message):
+    """Tweets"""
+    print(message)
     api = twitter_api()
-    filename = 'temp.jpg'
-    request = requests.get(url, stream=True)
-    if request.status_code == 200:
-        with open(filename, 'wb') as image:
-            for chunk in request:
-                image.write(chunk)
-
-        api.update_with_media(filename, status=message)
-        os.remove(filename)
-    else:
-        print("Unable to download image")
+    api.update_status(status=message)
 
 
-def tweet_with_image_from_filename(message, filename):
-    api = twitter_api()
-    api.update_with_media(filename, status=message)
-
-
-def get_tweet_contents(filename):
+def get_tweet_contents_from_csv(filename):
     """Reads in a csv from given filename. returns a list of dictionary
     items pertaining to each lesson."""
     results = []
@@ -59,26 +46,38 @@ def get_tweet_contents(filename):
     return results
 
 
+def get_tweet_contents_from_google():
+    """Reads in contents of google spreadsheet."""
+    scope = ['https://spreadsheets.google.com/feeds']
+
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(
+        'Programming Historian-aa456f0a6b33.json', scope)
+
+    gc = gspread.authorize(credentials)
+    wks = gc.open_by_key('1o-C-3WwfcEYWipIFb112tkuM-XOI8pVVpA9_sag9Ph8')
+    list_of_items = wks.sheet1.get_all_values()[1:]
+
+    return list_of_items
+
+
 def select_random_lesson(lessons):
     """given a list of lessons, select one at random"""
     return random.choice(lessons)
 
 
 def select_random_message(lesson):
-    choice = random.choice(['message-one', 'message-two'])
-    print(lesson)
-    print(choice)
+    """Select one of the two options for messages"""
+    choice = random.choice([1, 2])
     return lesson[choice]
 
 
 def prepare_tweet():
-    options = get_tweet_contents('tweet-manifest.csv')
+    # options = get_tweet_contents_from_csv('tweet-manifest.csv')
+    options = get_tweet_contents_from_google()
     lesson = select_random_lesson(options)
     message = select_random_message(lesson)
-    link = lesson['lesson-link']
-    image_link = 'gallery/' + re.sub(
-        r'http://programminghistorian\.org/lessons/', '', link) + '.png'
-    return message + link, image_link
+    link = lesson[3]
+    return message + ' ' + link
 
 
 def rest(max_sleep):
@@ -86,18 +85,14 @@ def rest(max_sleep):
 
 
 def main():
-    # /gallery/slug.png
-    # so for a tweet you need, message, slug for link, filename.
-    # messages will need to be distinct for each.
-    # easiest would be a csv file in the format,
-    # id, message, link, image link
+
     tweet_contents = prepare_tweet()
+
     try:
-        tweet_with_image_from_filename(tweet_contents[0],
-                                       tweet_contents[1])
-        print('Success: ' + tweet_contents[0] + tweet_contents[1])
+        tweet(tweet_contents)
+        print('Success: ' + tweet_contents)
     except:
-        print('Fail: ' + tweet_contents[0] + tweet_contents[1])
+        print('Fail: ' + tweet_contents)
 
 
 if __name__ == '__main__':
