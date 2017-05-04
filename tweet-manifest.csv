@@ -1,9 +1,0 @@
-lesson-id,message-one,message-two,lesson-link
-1,"Get started with the Zotero API using this tutorial.","Want to access your Zotero libraries from Python? Learn how with this lesson.",http://programminghistorian.org/lessons/intro-to-the-zotero-api
-2,"Learn how to use Python to add things to your Zotero Library with this lesson -","Use Python to modify your Zotero collection with this tutorial -",http://programminghistorian.org/lessons/creating-new-items-in-zotero
-3,"Count word frequencies in your Zotero items with this tutorial-","Analyze your Zotero items with this beginning tutorial.",http://programminghistorian.org/lessons/counting-frequencies-from-zotero-items
-4,"Learn how to preserve your research data with us-","Structure and document your research data to make sure they last. More here-",http://programminghistorian.org/lessons/preserving-your-research-data
-5,"Learn the basics of Markdown with this lesson-","Markdown is a plain text-based syntax for formatting documents. Learn more with this tutorial-",http://programminghistorian.org/lessons/getting-started-with-markdown
-6,"Learn how Markdown and pandoc can ensure your work is as sustainable as possible-","Learn how to use pandoc and markdown to transform your documents for any situation-",http://programminghistorian.org/lessons/sustainable-authorship-in-plain-text-using-pandoc-and-markdown
-7,"Get started with the GitHub desktop app -","Looking to collaborate on a project? We can help you get started with GitHub-",http://programminghistorian.org/lessons/getting-started-with-github-desktop
-8,"Learn about producing static sites with GitHub pages-","This tutorial can help you quickly spin up a static site using jekyll and GitHub-",http://programminghistorian.org/lessons/building-static-sites-with-jekyll-github-pages
