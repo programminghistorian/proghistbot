@@ -9,7 +9,7 @@ print(os.environ.get('json_credentials'))
 # credentials = ServiceAccountCredentials.from_json(
 #     os.environ.get('json_credentials'), scope)
 
-credentials = ServiceAccountCredentials.from_json(
+credentials = ServiceAccountCredentials.from_json_keyfile_dict(
     os.environ.get('json_credentials'))
 
 print(credentials)
