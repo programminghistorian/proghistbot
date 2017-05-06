@@ -113,7 +113,6 @@ def select_random_lesson(lessons_frame, sheet):
 
     # so all False - needs to be purged because everything has been tweeted.
     remaining_lessons = ~lessons_frame.tweet_log.str.startswith('X')
-    # frame.iloc[[num]] for indexing
     if remaining_lessons.any():
         print('some stuff remaining')
         the_choice = lessons_frame.iloc[[random.choice(
@@ -121,7 +120,6 @@ def select_random_lesson(lessons_frame, sheet):
             .index.values)]]
     else:
         print('all out!')
-        # for id_num in [lesson[0] for lesson in lessons]:
         for id_num in lessons_frame.index.values:
             clear_queue(sheet, id_num)
         the_choice = lessons_frame.iloc[[random.choice(
@@ -141,8 +139,6 @@ def select_second_message(lesson):
 def prepare_tweet(day_two=False, spanish=False):
     sheet, options_frame = get_tweet_contents_from_google()
     remove_last_tweet_marker(options_frame, sheet)
-    # TODO rather than selecting a random message here
-    # it should look to see if there was a Y marker if it is the other bot
     if day_two:
         last_tweet = options_frame.tweet_log.str.endswith('Y')
         lesson = options_frame[last_tweet]
