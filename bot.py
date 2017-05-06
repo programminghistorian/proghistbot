@@ -1,24 +1,30 @@
 import os
+import sys
+import argparse
 from tweepy import OAuthHandler, API
 import random
-import time
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import pandas as pd
+import traceback
 
+# Scheduling - it's a daily task that only runs certain days of the week.
+# Monday - 9AM PST, 12PM EST, 4PM London time
+# if [ "$(date +%u)" = 1 ]; then python bot.py; fi
+# Thursday 6:30 AM PST, 9:30 AM EST, 1:30PM London
+# if [ "$(date +%u)" = 4 ]; then python bot.py -t True; fi
+# TODO: better error testing, since it can't persistently write to files
+# TODO: use for whole list of tweets once you're positive it's working.
+# TODO: Spanish as its own sheet
+# TODO: Can you remove the ID column?
 # Test on Production
 # Testing
-# rather than randomly choosing b/w lessons one and two you'll want
-# to say, look at column A. Find the X's. Now find the one X that is missing a
-# Y. tweet that message two.
 # Make sure it is still tweeting
-# When tweets are full it's not wiping out the one with the Y.
 # Test the tweets individually
 # Fill out all the data
 # Fill out the data with authors
-# Restart the bot again
-# Spanish translations will need to be entered either on
-# their own spreadsheet with their own bots
-# or just as their own rows here.
+# Spanish translations can probably just be their own sheet. All else can remain the same.
+
 is_prod = os.environ.get('IS_HEROKU', None)
 
 ACCESS_TOKEN = os.environ.get('ACCESS_TOKEN')
@@ -55,82 +61,133 @@ def get_tweet_contents_from_google():
 
     gc = gspread.authorize(credentials)
     wks = gc.open_by_key('1o-C-3WwfcEYWipIFb112tkuM-XOI8pVVpA9_sag9Ph8')
-    list_of_items = wks.sheet1.get_all_values()[1:5]
+    list_of_items = wks.sheet1.get_all_values()[:5]
+    headers = list_of_items.pop(0)
 
-    return wks.sheet1, list_of_items
+    return wks.sheet1, pd.DataFrame(list_of_items, columns=headers)
 
 
 def update_sheet_queue_after_tweeting(sheet, id_num):
     """After a tweet has been sent out, update the spreadsheet.
     Add two to make the cells line up. Most recent tweet marked with
     XY"""
-
-    cell_label = 'E' + str(int(id_num) + 2)
+    cell_label = 'E' + str(int(id_num.values[0]) + 2)
+    print('========')
+    print('update_sheet_queue')
     print(cell_label)
+    print('========')
     sheet.update_acell(cell_label, 'XY')
 
 
-def remove_last_tweet_marker(lessons, sheet):
+def remove_last_tweet_marker(lessons_frame, sheet):
     """Remove the last tweet marker XY and replace with just X."""
-    for lesson in lessons:
-        if lesson[4].endswith('Y'):
-            sheet.update_acell('E' + str(int(lesson[0]) + 2), 'X')
-    pass
+    last_tweet = lessons_frame.tweet_log.str.endswith('Y')
+    print('looking for last markers')
+    if lessons_frame[last_tweet].index.any() or \
+            lessons_frame[last_tweet].index.values[0] == 0:
+        print('found one')
+        for index_num in lessons_frame[last_tweet].index.values:
+            cell_label = 'E' + str(index_num + 2)
+            print('=====')
+            print('remove_last_tweet_marker')
+            print(cell_label)
+            print('=====')
+            sheet.update_acell(cell_label, 'X')
+    else:
+        print('could not find any')
+        print(lessons_frame[last_tweet].index)
+        pass
 
 
 def clear_queue(sheet, id_num):
     cell_label = 'E' + str(int(id_num) + 2)
+    print('======')
+    print('cleaning_queue')
+    print(cell_label)
+    print('======')
     sheet.update_acell(cell_label, '')
 
 
-def select_random_lesson(lessons, sheet):
+def select_random_lesson(lessons_frame, sheet):
     """given a list of lessons, select one at random"""
 
-    remaining_lessons = [
-        lesson for lesson in lessons if not lesson[4].startswith('X')]
-    if not remaining_lessons:
-        print('all out!')
-        for id_num in [lesson[0] for lesson in lessons]:
-            clear_queue(sheet, id_num)
-        the_choice = random.choice(lessons)
-    else:
+    # so all False - needs to be purged because everything has been tweeted.
+    remaining_lessons = ~lessons_frame.tweet_log.str.startswith('X')
+    # frame.iloc[[num]] for indexing
+    if remaining_lessons.any():
         print('some stuff remaining')
-        the_choice = random.choice(remaining_lessons)
+        the_choice = lessons_frame.iloc[[random.choice(
+            lessons_frame[remaining_lessons]
+            .index.values)]]
+    else:
+        print('all out!')
+        # for id_num in [lesson[0] for lesson in lessons]:
+        for id_num in lessons_frame.index.values:
+            clear_queue(sheet, id_num)
+        the_choice = lessons_frame.iloc[[random.choice(
+            lessons_frame.index.values)]]
     return the_choice
 
 
-def select_random_message(lesson):
+def select_first_message(lesson):
     """Select one of the two options for messages"""
-    choice = random.choice([1, 2])
-    return lesson[choice]
+    return lesson.message_one.values[0]
 
 
-def prepare_tweet():
-    # options = get_tweet_contents_from_csv('tweet-manifest.csv')
-    sheet, options = get_tweet_contents_from_google()
-    lesson = select_random_lesson(options, sheet)
-    message = select_random_message(lesson)
-    link = lesson[3]
-    # Something wonky going on here. get it to print out some variables of
-    # things you're tweeting. somehow it is marking things twice.
-    remove_last_tweet_marker(options, sheet)
-    update_sheet_queue_after_tweeting(sheet, lesson[0])
+def select_second_message(lesson):
+    return lesson.message_two.values[0]
+
+
+def prepare_tweet(day_two=False, spanish=False):
+    sheet, options_frame = get_tweet_contents_from_google()
+    remove_last_tweet_marker(options_frame, sheet)
+    # TODO rather than selecting a random message here
+    # it should look to see if there was a Y marker if it is the other bot
+    if day_two:
+        last_tweet = options_frame.tweet_log.str.endswith('Y')
+        lesson = options_frame[last_tweet]
+        message = select_second_message(lesson)
+    else:
+        lesson = select_random_lesson(options_frame, sheet)
+        message = select_first_message(lesson)
+    link = lesson.link.values[0]
+    update_sheet_queue_after_tweeting(sheet, lesson.index)
     return message + ' ' + link
 
 
-def rest(max_sleep):
-    time.sleep(random.random() * max_sleep)
+def parse_args(argv=None):
+    """This parses the command line."""
+    argv = sys.argv[1:] if argv is None else argv
+    parser = argparse.ArgumentParser(description=__doc__)
+
+    parser.add_argument('-t', '--two', dest='day_two', action='store',
+                        default=False,
+                        help='Set tweets for second message')
+    parser.add_argument('-es', '--spanish', dest='spanish', type=bool,
+                        default=False,
+                        help='Set tweets to be Spanish. '
+                        'Default = False')
+    return parser.parse_args(argv)
 
 
 def main():
-
-    tweet_contents = prepare_tweet()
+    args = parse_args()
+    tweet_contents = prepare_tweet(args.day_two, args.spanish)
 
     try:
         tweet(tweet_contents)
         print('Success: ' + tweet_contents)
     except:
-        print('Fail: ' + tweet_contents)
+        print('Fail: ' + tweet_contents + '\n')
+        print(traceback.format_exc())
+        with open('errors.txt', 'a') as fn:
+            print('===========')
+            print(tweet_contents + '\n')
+            print('===========')
+            fn.write('===========')
+            fn.write('Fail: ' + tweet_contents + '\n')
+            fn.write(traceback.format_exc() + '\n')
+            fn.write('===========' + '\n')
 
 
 if __name__ == '__main__':
