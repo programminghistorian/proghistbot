@@ -8,25 +8,16 @@ from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import traceback
 
-
-# look into encrypting the stuff in the json -
-# https://github.com/andrewcooke/simple-crypt
-# Scheduling - it's a daily task that only runs certain days of the week.
-# Monday - 9AM PST, 12PM EST, 4PM London time
-# if [ "$(date +%u)" = 1 ]; then python bot.py; fi
-# Thursday 6:30 AM PST, 9:30 AM EST, 1:30PM London
-# if [ "$(date +%u)" = 4 ]; then python bot.py -t True; fi
 # TODO: better error testing, since it can't persistently write to files
 # TODO: use for whole list of tweets once you're positive it's working.
 # TODO: Spanish as its own sheet
 # TODO: Can you remove the ID column?
-# Test on Production
-# Testing
-# Make sure it is still tweeting
-# Test the tweets individually
-# Fill out all the data
-# Fill out the data with authors
-# Spanish translations can probably just be their own sheet. All else can remain the same.
+# TODO: Testing
+# TODO: Test the tweets individually?
+# TODO: Fill out all the data
+# TODO: Fill out the data with authors
+# TODO: Filter to catch the CLI argument signaling
+#   you should be tweeting spanish instead.
 
 is_prod = os.environ.get('IS_HEROKU', None)
 
