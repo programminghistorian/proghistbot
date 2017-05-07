@@ -57,3 +57,10 @@ $ git checkout heroku
 $ git merge master
 $ git push heroku heroku:master
 ```
+
+When in doubt, you can always run
+```bash
+$ heroku run bash
+```
+
+to make sure that you haven't accidentally deleted the JSON key from the Heroku remote.
