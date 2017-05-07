@@ -26,27 +26,34 @@ It's important that we not commit sensitive data to the GitHub repository. The T
 
 For that reason, the general workflow to modify the bot is this. First clone the bot down and make your heroku branch:
 
+```bash
 $ git clone git@github.com:walshbr/proghistbot.git
 $ git branch heroku
 $ git checkout heroku
+```
 
 Then, add the JSON key (should be shared by email) to the repository and push it up to Heroku remote.
 
+```bash
 $ git add 'Programming_Historian-aa456f0a6b33.json'
 $ git add 'Setting up access to the Heroku remote.'
 $ git push heroku heroku:master
+```
 
 From then on out you'll work on the master branch, merge into heroku, and push up your changes to the heroku branch.
 
+```bash
 $ git checkout master
 [edit some files]
 $ git add .
 $ git commit -m 'Share a helpful message.'
 $ git push origin master.
+```
 
 When ready to deploy to the heroku remote itself, you'll merge into the heroku branch.
 
+```bash
 $ git checkout heroku
 $ git merge master
 $ git push heroku heroku:master
-
+```
