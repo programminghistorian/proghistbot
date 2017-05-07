@@ -6,6 +6,10 @@ This repository collects the code used for the Twitter bot put together for [The
 
 Data is served out of a [Google spreadsheet](https://docs.google.com/spreadsheets/d/1o-C-3WwfcEYWipIFb112tkuM-XOI8pVVpA9_sag9Ph8/edit#gid=1625380994).
 
+You'll want to only add data to the message_one, message_two, and link columns. The tweet_log is managed by the bot itself to track its progress through the corpus of lessons.
+
+Note: the ID column will probably be deprecated once I figure out a Pandas issue I was working through.
+
 As of May 2017, the tweets are scheduled to go out the following days/times each week:
 
 * Monday - 9AM PST, 12PM EST, 4PM London time
