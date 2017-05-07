@@ -8,6 +8,9 @@ from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import traceback
 
+
+# look into encrypting the stuff in the json -
+# https://github.com/andrewcooke/simple-crypt
 # Scheduling - it's a daily task that only runs certain days of the week.
 # Monday - 9AM PST, 12PM EST, 4PM London time
 # if [ "$(date +%u)" = 1 ]; then python bot.py; fi
