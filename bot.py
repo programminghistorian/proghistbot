@@ -6,19 +6,12 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 # Test on Production
-# Testing
-# rather than randomly choosing b/w lessons one and two you'll want
-# to say, look at column A. Find the X's. Now find the one X that is missing a
-# Y. tweet that message two.
-# Make sure it is still tweeting
-# When tweets are full it's not wiping out the one with the Y.
 # Test the tweets individually
-# Fill out all the data
-# Fill out the data with authors
-# Restart the bot again
-# Spanish translations will need to be entered either on
+# Spanish translations not implemented yet -
+# they will need to be entered either on
 # their own spreadsheet with their own bots
 # or just as their own rows here.
+
 is_prod = os.environ.get('IS_HEROKU', None)
 
 ACCESS_TOKEN = os.environ.get('ACCESS_TOKEN')
@@ -106,13 +99,10 @@ def select_random_message(lesson):
 
 
 def prepare_tweet():
-    # options = get_tweet_contents_from_csv('tweet-manifest.csv')
     sheet, options = get_tweet_contents_from_google()
     lesson = select_random_lesson(options, sheet)
     message = select_random_message(lesson)
     link = lesson[3]
-    # Something wonky going on here. get it to print out some variables of
-    # things you're tweeting. somehow it is marking things twice.
     remove_last_tweet_marker(options, sheet)
     update_sheet_queue_after_tweeting(sheet, lesson[0])
     return message + ' ' + link
