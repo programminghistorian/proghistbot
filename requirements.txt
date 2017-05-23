@@ -25,6 +25,7 @@ notebook==4.4.1
 numpy==1.12.1
 oauth2client==4.0.0
 oauthlib==2.0.2
+pandas==0.19.2
 pandocfilters==1.4.1
 pbr==2.1.0
 pexpect==4.2.1
