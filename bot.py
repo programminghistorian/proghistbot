@@ -78,8 +78,8 @@ def update_sheet_queue_after_tweeting(sheet, id_num):
 def remove_last_tweet_marker(lessons_frame, sheet):
     """Remove the tweet marker XY from the previous tweet and
     replace with just X. Also catches a couple bugs - will remove multiple
-    XY markers if they exist (though I fixed that problem), and will log if there
-    don't appear to be any last tweet markers."""
+    XY markers if they exist (though I fixed that problem), and will log if
+    there don't appear to be any last tweet markers."""
     last_tweet = lessons_frame.tweet_log.str.endswith('Y')
     print('looking for last markers')
     if lessons_frame[last_tweet].index.any() or \
