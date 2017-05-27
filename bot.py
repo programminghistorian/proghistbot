@@ -57,7 +57,7 @@ def get_tweet_contents_from_google():
 
     gc = gspread.authorize(credentials)
     wks = gc.open_by_key('1o-C-3WwfcEYWipIFb112tkuM-XOI8pVVpA9_sag9Ph8')
-    list_of_items = wks.sheet1.get_all_values()[:5]
+    list_of_items = wks.sheet1.get_all_values()
     headers = list_of_items.pop(0)
 
     return wks.sheet1, pd.DataFrame(list_of_items, columns=headers)
