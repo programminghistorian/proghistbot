@@ -15,11 +15,30 @@ As of May 2017, the tweets are scheduled to go out the following days/times each
 * Monday - 9AM PST, 12PM EST, 4PM London time
 * Thursday 6:30 AM PST, 9:30 AM EST, 1:30PM London
 
-The Thursday tweets are an ICYMI of Monday's content, reworded and often a bit more technical in nature. Each week the bot picks a random tweet from the spreadsheet. It will cycle through all the tweets until they're done, at which point it will start over again. So with one week per lesson we're looking at a year's worth of tweets. 
+The Thursday tweets are an ICYMI of Monday's content, reworded and often a bit more technical in nature. Each week the bot picks a random tweet from the spreadsheet. It will cycle through all the tweets until they're done, at which point it will start over again. So with one week per lesson we're looking at a year's worth of tweets.
 
-From a more technical point of view, the bot is a Python script that runs certain days of the week on Heroku. 
+## Heroku
 
-## Deploying
+From a more technical point of view, the bot is a Python script that runs certain days of the week on Heroku. The bot is called "proghistbot" on Heroku. As of right now, @walshbr owns the bot, and @mdlincoln, and @jerielizabeth are collaborators. If new people need to be added to the bot, contact @walshbr.
+
+Heroku only allows workers to run every 10 minutes, hourly, or daily. So we get around this by having two workers scheduled to each go off once a day. When they fire, they check to see what day it is. If it's not a day of the week when their particular worker is scheduled to go off, they pass. So we're filtering to only run Monday/Thursday. You can check the behaviors for these scheduled tasks by clicking on "Resources" from the dashboard for the proghistbot app when logged into Heroku. This resource is called "Heroku Scheduler." I've also included a task that allows you to run a tweet immediately for testing purposes. Under "Resources" from the app dashboard, the worker "python bot.py" is by default off. Turning this worker on by clicking the pencil at right will have the bot run a tweet immediately.
+
+Heroku logs can be viewed live from the terminal by running
+
+```
+$ heroku logs -t
+```
+
+Or, you can work locally by running:
+
+```
+$ heroku run local
+```
+
+This will run the app locally using the procfile. In order to do so, however, you will need to store the Twitter credentials for the bot locally in a .env file. I've provided a template file, "template.env", that you can rename to ".env" - just place the bot credentials with the quotation marks. All Twitter credentials are stored as config variables in Heroku. You access them from the dashboard of the proghistbot app on Heroku by clicking on "Settings" > "Config Vars". These are linked to the Programming Historian's Twitter account, so they shouldn't ever need to be changed. 
+
+## Deploying and Development
+
 To deploy this yourself, you'll need a few things, depending on what you're trying to do:
 
 * Write access to the Google spreadsheet.

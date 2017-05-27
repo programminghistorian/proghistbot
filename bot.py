@@ -7,22 +7,23 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import traceback
+import time
 
-# TODO: better error testing, since it can't persistently write to files
-# TODO: use for whole list of tweets once you're positive it's working.
-# TODO: Spanish as its own sheet
-# TODO: Can you remove the ID column?
-# TODO: Testing
-# TODO: Test the tweets individually?
-# TODO: Fill out all the data
-# TODO: Fill out the data with authors
+# TODO: Refactor to remove the ID column, since Pandas can make one for us.
 # TODO: Filter to catch the CLI argument signaling
 #   you should be tweeting spanish instead.
+# TODO: Integrate Spanish as its own tab within the main sheet
+
 
 ACCESS_TOKEN = os.environ.get('ACCESS_TOKEN')
 ACCESS_TOKEN_SECRET = os.environ.get('ACCESS_TOKEN_SECRET')
 CONSUMER_KEY = os.environ.get('CONSUMER_KEY')
 CONSUMER_SECRET = os.environ.get('CONSUMER_SECRET')
+
+
+def rest(max_sleep):
+    """Rest after tweeting - used when testing. """
+    time.sleep(random.random() * max_sleep)
 
 
 def twitter_api():
@@ -195,16 +196,16 @@ def main():
         tweet(tweet_contents)
         print('Success: ' + tweet_contents)
     except:
+        # catch in the logs on heroku
         print('Fail: ' + tweet_contents + '\n')
         print(traceback.format_exc())
         with open('errors.txt', 'a') as fn:
-            print('===========')
-            print(tweet_contents + '\n')
-            print('===========')
+            # catch in the logs locally.
             fn.write('===========')
             fn.write('Fail: ' + tweet_contents + '\n')
             fn.write(traceback.format_exc() + '\n')
             fn.write('===========' + '\n')
+    rest(600)
 
 
 if __name__ == '__main__':
