@@ -1,6 +1,6 @@
 # Read Me
 
-This repository collects the code used for the Twitter bot put together for [The Programming Historian](programminghistorian.org) by @walshbr. 
+This repository collects the code used for the Twitter bot put together for [The Programming Historian](programminghistorian.org) by @walshbr.
 
 ## Tweeting Process
 
@@ -32,10 +32,10 @@ $ heroku logs -t
 Or, you can work locally by running:
 
 ```
-$ heroku run local
+$ heroku local
 ```
 
-This will run the app locally using the procfile. In order to do so, however, you will need to store the Twitter credentials for the bot locally in a .env file. I've provided a template file, "template.env", that you can rename to ".env" - just place the bot credentials with the quotation marks. All Twitter credentials are stored as config variables in Heroku. You access them from the dashboard of the proghistbot app on Heroku by clicking on "Settings" > "Config Vars". These are linked to the Programming Historian's Twitter account, so they shouldn't ever need to be changed. 
+This will run the app locally using the procfile. In order to do so, however, you will need to store the Twitter credentials for the bot locally in a .env file. I've provided a template file, "template.env", that you can rename to ".env" - just place the bot credentials with the quotation marks. All Twitter credentials are stored as config variables in Heroku. You access them from the dashboard of the proghistbot app on Heroku by clicking on "Settings" > "Config Vars". These are linked to the Programming Historian's Twitter account, so they shouldn't ever need to be changed.
 
 ## Deploying and Development
 
