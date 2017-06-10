@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import os
 import sys
 import argparse
@@ -10,10 +11,8 @@ import traceback
 import time
 
 # TODO: Refactor to remove the ID column, since Pandas can make one for us.
-# TODO: Filter to catch the CLI argument signaling
-#   you should be tweeting spanish instead.
-# TODO: Integrate Spanish as its own tab within the main sheet
-
+# TODO: Schedule a Spanish worker on Heroku
+# if [ "$(date +%u)" = 2 ]; then python bot.py -es True; fi
 
 ACCESS_TOKEN = os.environ.get('ACCESS_TOKEN')
 ACCESS_TOKEN_SECRET = os.environ.get('ACCESS_TOKEN_SECRET')
@@ -46,7 +45,7 @@ def tweet(message):
     api.update_status(status=message)
 
 
-def get_tweet_contents_from_google():
+def get_tweet_contents_from_google(spanish=False):
     """Reads in contents of google spreadsheet. Returns both the
     spreadshet for updating and a Pandas dataframe of the data
     for working with."""
@@ -57,10 +56,16 @@ def get_tweet_contents_from_google():
 
     gc = gspread.authorize(credentials)
     wks = gc.open_by_key('1o-C-3WwfcEYWipIFb112tkuM-XOI8pVVpA9_sag9Ph8')
-    list_of_items = wks.sheet1.get_all_values()
-    headers = list_of_items.pop(0)
-
-    return wks.sheet1, pd.DataFrame(list_of_items, columns=headers)
+    if spanish:
+        print('tweeting in spanish')
+        list_of_items = wks.worksheet('Spanish').get_all_values()
+        headers = list_of_items.pop(0)
+        return wks.worksheet('Spanish'), pd.DataFrame(list_of_items, columns=headers)
+    else:
+        print('tweeting in english')
+        list_of_items = wks.sheet1.get_all_values()
+        headers = list_of_items.pop(0)
+        return wks.sheet1, pd.DataFrame(list_of_items, columns=headers)
 
 
 def update_sheet_queue_after_tweeting(sheet, id_num):
@@ -83,6 +88,7 @@ def remove_last_tweet_marker(lessons_frame, sheet):
     there don't appear to be any last tweet markers."""
     last_tweet = lessons_frame.tweet_log.str.endswith('Y')
     print('looking for last markers')
+    print(lessons_frame[last_tweet])
     if lessons_frame[last_tweet].index.any() or \
             lessons_frame[last_tweet].index.values[0] == 0:
         print('found one')
@@ -150,7 +156,7 @@ def prepare_tweet(day_two=False, spanish=False):
     * Update the queue based on what is about to be tweeted.
     * Return a string for the tweet consisting of the message and the link.
     """
-    sheet, options_frame = get_tweet_contents_from_google()
+    sheet, options_frame = get_tweet_contents_from_google(spanish)
     remove_last_tweet_marker(options_frame, sheet)
     if day_two:
         last_tweet = options_frame.tweet_log.str.endswith('Y')
