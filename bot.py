@@ -1,3 +1,5 @@
+# coding=utf-8
+
 from __future__ import unicode_literals
 import os
 import sys
@@ -11,8 +13,6 @@ import traceback
 import time
 
 # TODO: Refactor to remove the ID column, since Pandas can make one for us.
-# TODO: Schedule a Spanish worker on Heroku
-# if [ "$(date +%u)" = 2 ]; then python bot.py -es True; fi
 
 ACCESS_TOKEN = os.environ.get('ACCESS_TOKEN')
 ACCESS_TOKEN_SECRET = os.environ.get('ACCESS_TOKEN_SECRET')
