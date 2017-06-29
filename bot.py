@@ -194,23 +194,20 @@ def main():
 
     # Get the arguments and prepare the tweet contents.
     args = parse_args()
+    print('grabbing tweet contents')
     tweet_contents = prepare_tweet(args.day_two, args.spanish)
-
+    print('tweet contents grabbed')
     # Try to tweet. If it works, log the success. If it doesn't, log the stack
     # trace for debugging later.
     try:
+        print('trying to tweet')
         tweet(tweet_contents)
         print('Success: ' + tweet_contents)
     except:
         # catch in the logs on heroku
+        print('Something went wrong')
         print('Fail: ' + tweet_contents + '\n')
         print(traceback.format_exc())
-        with open('errors.txt', 'a') as fn:
-            # catch in the logs locally.
-            fn.write('===========')
-            fn.write('Fail: ' + tweet_contents + '\n')
-            fn.write(traceback.format_exc() + '\n')
-            fn.write('===========' + '\n')
     rest(600)
 
 
