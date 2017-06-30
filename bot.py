@@ -167,6 +167,7 @@ def prepare_tweet(day_two=False, spanish=False):
         message = select_first_message(lesson)
     link = lesson.link.values[0]
     update_sheet_queue_after_tweeting(sheet, lesson.index)
+    # return u' '.join((message, link))
     return message + ' ' + link
 
 
@@ -206,7 +207,7 @@ def main():
     except:
         # catch in the logs on heroku
         print('Something went wrong')
-        print('Fail: ' + tweet_contents + '\n')
+        print('Fail: ' + tweet_contents)
         print(traceback.format_exc())
     rest(600)
 
