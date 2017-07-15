@@ -73,7 +73,7 @@ def update_sheet_queue_after_tweeting(sheet, id_num):
     Add two to make the cells line up with the indexing of the data.
     Most recent tweet is marked with XY, so as to distinguish it from
     the rest of the previous tweets that are marked with X."""
-    cell_label = 'E' + str(int(id_num.values[0]) + 2)
+    cell_label = 'D' + str(int(id_num.values[0]) + 2)
     print('========')
     print('update_sheet_queue')
     print(cell_label)
@@ -93,7 +93,7 @@ def remove_last_tweet_marker(lessons_frame, sheet):
             lessons_frame[last_tweet].index.values[0] == 0:
         print('found one')
         for index_num in lessons_frame[last_tweet].index.values:
-            cell_label = 'E' + str(index_num + 2)
+            cell_label = 'D' + str(index_num + 2)
             print('=====')
             print('remove_last_tweet_marker')
             print(cell_label)
@@ -108,7 +108,7 @@ def remove_last_tweet_marker(lessons_frame, sheet):
 def clear_queue(sheet, id_num):
     """Cleans out the Tweet log when everything has been tweeted so that
     the tweet queue will restart."""
-    cell_label = 'E' + str(int(id_num) + 2)
+    cell_label = 'D' + str(int(id_num) + 2)
     print('======')
     print('cleaning_queue')
     print(cell_label)
