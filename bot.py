@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import os
 import sys
 import argparse
@@ -7,22 +8,24 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import traceback
+import time
 
-# TODO: better error testing, since it can't persistently write to files
-# TODO: use for whole list of tweets once you're positive it's working.
-# TODO: Spanish as its own sheet
-# TODO: Can you remove the ID column?
-# TODO: Testing
-# TODO: Test the tweets individually?
-# TODO: Fill out all the data
-# TODO: Fill out the data with authors
-# TODO: Filter to catch the CLI argument signaling
-#   you should be tweeting spanish instead.
+# TODO: Refactor for better error handling
+# TODO: Actually select the days you want and get heroku running accordingly.
+
+# For local testing you just run the script with regular arguments based on what language you're testing:
+# $ python bot.py -es True -t True
+# Heroku will add separate arguments for the scheduling, but this should immediately send a tweet out from the ProgHist account (or offer the opportunity to debug).
 
 ACCESS_TOKEN = os.environ.get('ACCESS_TOKEN')
 ACCESS_TOKEN_SECRET = os.environ.get('ACCESS_TOKEN_SECRET')
 CONSUMER_KEY = os.environ.get('CONSUMER_KEY')
 CONSUMER_SECRET = os.environ.get('CONSUMER_SECRET')
+
+
+def rest(max_sleep):
+    """Rest after tweeting - used when testing. """
+    time.sleep(random.random() * max_sleep)
 
 
 def twitter_api():
@@ -45,21 +48,32 @@ def tweet(message):
     api.update_status(status=message)
 
 
-def get_tweet_contents_from_google():
+def get_tweet_contents_from_google(spanish=False, french=False):
     """Reads in contents of google spreadsheet. Returns both the
     spreadshet for updating and a Pandas dataframe of the data
     for working with."""
     scope = ['https://spreadsheets.google.com/feeds']
 
     credentials = ServiceAccountCredentials.from_json_keyfile_name(
-        'Programming_Historian-aa456f0a6b33.json', scope)
+        'proghist-google-credentials.json', scope)
 
     gc = gspread.authorize(credentials)
     wks = gc.open_by_key('1o-C-3WwfcEYWipIFb112tkuM-XOI8pVVpA9_sag9Ph8')
-    list_of_items = wks.sheet1.get_all_values()
-    headers = list_of_items.pop(0)
-
-    return wks.sheet1, pd.DataFrame(list_of_items, columns=headers)
+    if spanish:
+        print('tweeting in spanish')
+        list_of_items = wks.worksheet('Spanish').get_all_values()
+        headers = list_of_items.pop(0)
+        return wks.worksheet('Spanish'), pd.DataFrame(list_of_items, columns=headers)
+    if french:
+        print('tweeting in french')
+        list_of_items = wks.worksheet('French').get_all_values()
+        headers = list_of_items.pop(0)
+        return wks.worksheet('French'), pd.DataFrame(list_of_items, columns=headers)
+    else:
+        print('tweeting in english')
+        list_of_items = wks.sheet1.get_all_values()
+        headers = list_of_items.pop(0)
+        return wks.sheet1, pd.DataFrame(list_of_items, columns=headers)
 
 
 def update_sheet_queue_after_tweeting(sheet, id_num):
@@ -67,7 +81,8 @@ def update_sheet_queue_after_tweeting(sheet, id_num):
     Add two to make the cells line up with the indexing of the data.
     Most recent tweet is marked with XY, so as to distinguish it from
     the rest of the previous tweets that are marked with X."""
-    cell_label = 'E' + str(int(id_num.values[0]) + 2)
+    
+    cell_label = 'D' + str(int(id_num.values[0]) + 2)
     print('========')
     print('update_sheet_queue')
     print(cell_label)
@@ -82,11 +97,12 @@ def remove_last_tweet_marker(lessons_frame, sheet):
     there don't appear to be any last tweet markers."""
     last_tweet = lessons_frame.tweet_log.str.endswith('Y')
     print('looking for last markers')
+    print(lessons_frame[last_tweet])
     if lessons_frame[last_tweet].index.any() or \
             lessons_frame[last_tweet].index.values[0] == 0:
         print('found one')
         for index_num in lessons_frame[last_tweet].index.values:
-            cell_label = 'E' + str(index_num + 2)
+            cell_label = 'D' + str(index_num + 2)
             print('=====')
             print('remove_last_tweet_marker')
             print(cell_label)
@@ -101,7 +117,7 @@ def remove_last_tweet_marker(lessons_frame, sheet):
 def clear_queue(sheet, id_num):
     """Cleans out the Tweet log when everything has been tweeted so that
     the tweet queue will restart."""
-    cell_label = 'E' + str(int(id_num) + 2)
+    cell_label = 'D' + str(int(id_num) + 2)
     print('======')
     print('cleaning_queue')
     print(cell_label)
@@ -138,7 +154,7 @@ def select_second_message(lesson):
     return lesson.message_two.values[0]
 
 
-def prepare_tweet(day_two=False, spanish=False):
+def prepare_tweet(day_two=False, spanish=False, french=False):
     """Prepare the tweet for tweeting. Workflow:
     * Get the google spreadsheet and dataframe from an authorized account.
     * Remove the last tweet's marker.
@@ -149,7 +165,7 @@ def prepare_tweet(day_two=False, spanish=False):
     * Update the queue based on what is about to be tweeted.
     * Return a string for the tweet consisting of the message and the link.
     """
-    sheet, options_frame = get_tweet_contents_from_google()
+    sheet, options_frame = get_tweet_contents_from_google(spanish, french)
     remove_last_tweet_marker(options_frame, sheet)
     if day_two:
         last_tweet = options_frame.tweet_log.str.endswith('Y')
@@ -160,6 +176,7 @@ def prepare_tweet(day_two=False, spanish=False):
         message = select_first_message(lesson)
     link = lesson.link.values[0]
     update_sheet_queue_after_tweeting(sheet, lesson.index)
+
     return message + ' ' + link
 
 
@@ -179,32 +196,32 @@ def parse_args(argv=None):
                         default=False,
                         help='Set tweets to be Spanish. '
                         'Default = False')
+    parser.add_argument('-fr', '--french', dest='french', type=bool,
+                        default=False,
+                        help='Set tweets to be French. '
+                        'Default = False')    
     return parser.parse_args(argv)
-
 
 def main():
     """Tweet a lesson."""
 
     # Get the arguments and prepare the tweet contents.
     args = parse_args()
-    tweet_contents = prepare_tweet(args.day_two, args.spanish)
-
+    print('grabbing tweet contents')
+    tweet_contents = prepare_tweet(args.day_two, args.spanish, args.french)
+    print('tweet contents grabbed')
     # Try to tweet. If it works, log the success. If it doesn't, log the stack
     # trace for debugging later.
     try:
+        print('trying to tweet')
         tweet(tweet_contents)
         print('Success: ' + tweet_contents)
     except:
-        print('Fail: ' + tweet_contents + '\n')
+        # catch in the logs on heroku
+        print('Something went wrong')
+        print('Fail: ' + tweet_contents)
         print(traceback.format_exc())
-        with open('errors.txt', 'a') as fn:
-            print('===========')
-            print(tweet_contents + '\n')
-            print('===========')
-            fn.write('===========')
-            fn.write('Fail: ' + tweet_contents + '\n')
-            fn.write(traceback.format_exc() + '\n')
-            fn.write('===========' + '\n')
+    rest(600)
 
 
 if __name__ == '__main__':
