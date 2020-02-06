@@ -50,7 +50,7 @@ It's important that we not commit sensitive data to the GitHub repository. The T
 For that reason, the general workflow to modify the bot is this. First clone the bot down and make your heroku branch:
 
 ```bash
-$ git clone git@github.com:walshbr/proghistbot.git
+$ git clone https://github.com/programminghistorian/proghistbot.git
 $ git branch heroku
 $ git checkout heroku
 ```
