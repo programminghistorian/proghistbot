@@ -48,7 +48,7 @@ def tweet(message):
     api.update_status(status=message)
 
 
-def get_tweet_contents_from_google(spanish=False, french=False):
+def get_tweet_contents_from_google(spanish=False, french=False, communications=False):
     """Reads in contents of google spreadsheet. Returns both the
     spreadshet for updating and a Pandas dataframe of the data
     for working with."""
@@ -69,6 +69,11 @@ def get_tweet_contents_from_google(spanish=False, french=False):
         list_of_items = wks.worksheet('French').get_all_values()
         headers = list_of_items.pop(0)
         return wks.worksheet('French'), pd.DataFrame(list_of_items, columns=headers)
+    if communications:
+        print('tweeting from the communications tab')
+        list_of_items = wks.worksheet('Communications').get_all_values()
+        headers = list_of_items.pop(0)
+        return wks.worksheet('Communications'), pd.DataFrame(list_of_items, columns=headers)
     else:
         print('tweeting in english')
         list_of_items = wks.sheet1.get_all_values()
@@ -154,7 +159,7 @@ def select_second_message(lesson):
     return lesson.message_two.values[0]
 
 
-def prepare_tweet(day_two=False, spanish=False, french=False):
+def prepare_tweet(day_two=False, spanish=False, french=False, communications=False):
     """Prepare the tweet for tweeting. Workflow:
     * Get the google spreadsheet and dataframe from an authorized account.
     * Remove the last tweet's marker.
@@ -165,7 +170,7 @@ def prepare_tweet(day_two=False, spanish=False, french=False):
     * Update the queue based on what is about to be tweeted.
     * Return a string for the tweet consisting of the message and the link.
     """
-    sheet, options_frame = get_tweet_contents_from_google(spanish, french)
+    sheet, options_frame = get_tweet_contents_from_google(spanish, french, communications)
     remove_last_tweet_marker(options_frame, sheet)
     if day_two:
         last_tweet = options_frame.tweet_log.str.endswith('Y')
@@ -182,9 +187,9 @@ def prepare_tweet(day_two=False, spanish=False, french=False):
 
 def parse_args(argv=None):
     """Parses the command line for arguments.
-    Two different potential arguments. One indicates if it is the
+    A few different potential arguments. One indicates if it is the
     second tweet of the day (assumes that is not the case). Another marks
-    whether we should be tweeting Spanish (not implemented yet).
+    whether we should be tweeting in a particular language.
     """
     argv = sys.argv[1:] if argv is None else argv
     parser = argparse.ArgumentParser(description=__doc__)
@@ -199,7 +204,11 @@ def parse_args(argv=None):
     parser.add_argument('-fr', '--french', dest='french', type=bool,
                         default=False,
                         help='Set tweets to be French. '
-                        'Default = False')    
+                        'Default = False')
+    parser.add_argument('-co', '--communications', dest='communications', type=bool,
+                    default=False,
+                    help='Set tweets to be from the communications tab. '
+                    'Default = False')    
     return parser.parse_args(argv)
 
 def main():
@@ -208,7 +217,7 @@ def main():
     # Get the arguments and prepare the tweet contents.
     args = parse_args()
     print('grabbing tweet contents')
-    tweet_contents = prepare_tweet(args.day_two, args.spanish, args.french)
+    tweet_contents = prepare_tweet(args.day_two, args.spanish, args.french, args.communications)
     print('tweet contents grabbed')
     # Try to tweet. If it works, log the success. If it doesn't, log the stack
     # trace for debugging later.
