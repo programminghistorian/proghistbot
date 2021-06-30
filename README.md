@@ -2,13 +2,19 @@
 
 This repository collects the code used for the Twitter bot put together for [The Programming Historian](programminghistorian.org) by @walshbr.
 
+## Adding a new tweet routine
+
+There are a few steps to adding a new routine to the bot.
+
+1. Add a new spreadsheet tab to the spreadsheet linked above and populate the columns with a handful of tweets (see "Tweeting Process").
+2. Work with the bot.py file to add the new category of tweets to your workflow. (see "Deploying and Development".)
+3. Log into the heroku account and add the new tweet routines to the bot. (see "Adding to the Heroku Scheduler")
+  
 ## Tweeting Process
 
 Data is served out of a [Google spreadsheet](https://docs.google.com/spreadsheets/d/1o-C-3WwfcEYWipIFb112tkuM-XOI8pVVpA9_sag9Ph8/edit#gid=1625380994).
 
-You'll want to only add data to the id, message_one, message_two, and link columns. The tweet_log is managed by the bot itself to track its progress through the corpus of lessons.
-
-Note: the ID column will probably be deprecated once I figure out a Pandas issue I was working through.
+You'll want to only add data to the message_one, message_two, and link columns. The tweet_log is managed by the bot itself to track its progress through the corpus of lessons. _But_ when starting a spreadsheet for the first time you will want to have at least one XY value in the tweet_log column to start things off. 
 
 As of May 2017, the tweets are scheduled to go out the following days/times each week:
 
@@ -19,7 +25,7 @@ The Thursday tweets are an ICYMI of Monday's content, reworded and often a bit m
 
 ## Heroku
 
-From a more technical point of view, the bot is a Python script that runs certain days of the week on Heroku. The bot is called "proghistbot" on Heroku. As of right now, @walshbr owns the bot, and @mdlincoln, and @jerielizabeth are collaborators. If new people need to be added to the bot, contact @walshbr.
+From a more technical point of view, the bot is a Python script that runs certain days of the week on Heroku. The bot is called "proghistbot" on Heroku. As of right now, the Programming Historian account on Heroku owns the bot. If new people need to be added to the bot, contact @walshbr.
 
 Heroku only allows workers to run every 10 minutes, hourly, or daily. So we get around this by having two workers scheduled to each go off once a day. When they fire, they check to see what day it is. If it's not a day of the week when their particular worker is scheduled to go off, they pass. So we're filtering to only run Monday/Thursday. You can check the behaviors for these scheduled tasks by clicking on "Resources" from the dashboard for the proghistbot app when logged into Heroku. This resource is called "Heroku Scheduler." I've also included a task that allows you to run a tweet immediately for testing purposes. Under "Resources" from the app dashboard, the worker "python bot.py" is by default off. Turning this worker on by clicking the pencil at right will have the bot run a tweet immediately.
 
@@ -89,13 +95,22 @@ $ heroku run bash
 
 to make sure that you haven't accidentally deleted the JSON key from the Heroku remote.
 
-## Adding a new tweet routine
+## Adding to the heroku scheduler
 
-There are a few steps to adding a new routine to the bot.
+The Python script just generates a tweet. We use an add-on on Heroku called "Scheduler" to actually manage the timing of the tweets. So to add a new routine you need to log into the Heroku site, select the proghistbot, click resources, and then click "Heroku Scheduler." In this interface you will see a series of jobs like this:
 
-1. Add a new spreadsheet tab to the spreadsheet linked above and populate the columns with a handful of tweets.
-2. Work with the bot.py file to add the new category of tweets to your workflow. (see "Deploying and Development" above.)
-3. Log into the heroku account and add the new tweet routines to the bot. [note from Brandon to himself: if there is no other info here it means I forgot to document this part and should be pinged!]
+$ if [ "$(date +%u)" = 3 ]; then python bot.py -es True -t True; fi
+
+
+The scheduler runs a series of terminal commands each day, and those are what you are looking at. The first half - if [ "$(date +%u)" = 3 ]; - checks to see what day it is. If it is a particular day, it runs a particular version of the script. In this case, I believe it looks to see if it is Wednesday (Monday = 1 and Sunday = 7). If it is Wednesday it runs the script with these flags: -es True -t True. Those say tweet in Spanish and that it is the second day tweeting for the week.
+
+Adding a new tweet routine involves adding two new jobs to this list, one for the first day of the week and one for the second.
+
+$ if [ "$(date +%u)" = PICK_A_NUMBER_1_TO_7 ]; then python bot.py -pt True; fi
+
+$ if [ "$(date +%u)" = PICK_A_DIFF_NUMBER_1_TO_7 ]; then python bot.py -pt True -t True; fi
+
+You'll need to pick two different days of the week for tweeting, insert your own two letter language code (as specified in bot.py). Click add job, specify that it should go out everyday at a particular time (the terminal command will filter so it only tweets particular days), and add in your edited version of the above command. You should be good!
 
 ## Generating the JSON Keychain
 
