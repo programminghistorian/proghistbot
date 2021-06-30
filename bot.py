@@ -10,7 +10,7 @@ import pandas as pd
 import traceback
 import time
 
-# To add a new tab there are five spots to edit, marked in the script below.
+# To add a new tab there are several spots to edit, marked in the script below with TODO.
 
 # For local testing you just run the script with regular arguments based on what language you're testing:
 # $ python bot.py -es True -t True
@@ -46,8 +46,8 @@ def tweet(message):
     api = twitter_api()
     api.update_status(status=message)
 
-# Add a new tab here w/ "title=False"
-def get_tweet_contents_from_google(spanish=False, french=False, communications=False):
+# TODO: Add a new tab here w/ "title=False"
+def get_tweet_contents_from_google(spanish=False, french=False, communications=False, portuguese=False):
     """Reads in contents of google spreadsheet. Returns both the
     spreadshet for updating and a Pandas dataframe of the data
     for working with."""
@@ -73,7 +73,12 @@ def get_tweet_contents_from_google(spanish=False, french=False, communications=F
         list_of_items = wks.worksheet('Communications').get_all_values()
         headers = list_of_items.pop(0)
         return wks.worksheet('Communications'), pd.DataFrame(list_of_items, columns=headers)
-    # add a new tab here
+    if portuguese:
+        print('tweeting in Portuguese')
+        list_of_items = wks.worksheet('Portuguese').get_all_values()
+        headers = list_of_items.pop(0)
+        return wks.worksheet('Portuguese'), pd.DataFrame(list_of_items, columns=headers)
+    # TODO: add a new tab here
     # if NAME_OF_TAB:
     #     print('tweeting from the NAME_OF_TAB tab')
     #     list_of_items = wks.worksheet('NAME_OF_TAB').get_all_values()
@@ -163,8 +168,8 @@ def select_second_message(lesson):
     """Select the second message of a given lesson."""
     return lesson.message_two.values[0]
 
-# add a new tab here with "name=False"
-def prepare_tweet(day_two=False, spanish=False, french=False, communications=False):
+# TODO: add a new tab here with "name=False"
+def prepare_tweet(day_two=False, spanish=False, french=False, communications=False, portuguese=False):
     """Prepare the tweet for tweeting. Workflow:
     * Get the google spreadsheet and dataframe from an authorized account.
     * Remove the last tweet's marker.
@@ -175,8 +180,8 @@ def prepare_tweet(day_two=False, spanish=False, french=False, communications=Fal
     * Update the queue based on what is about to be tweeted.
     * Return a string for the tweet consisting of the message and the link.
     """
-    # add a new tab option by extending the parenthetical
-    sheet, options_frame = get_tweet_contents_from_google(spanish, french, communications)
+    # TODO: add a new tab option by extending the parenthetical
+    sheet, options_frame = get_tweet_contents_from_google(spanish, french, communications, portuguese)
     remove_last_tweet_marker(options_frame, sheet)
     if day_two:
         last_tweet = options_frame.tweet_log.str.endswith('Y')
@@ -215,7 +220,11 @@ def parse_args(argv=None):
                     default=False,
                     help='Set tweets to be from the communications tab. '
                     'Default = False')
-    # add a new tab w/ template for adding new tabs
+    parser.add_argument('-pt', '--portuguese', dest='portuguese', type=bool,
+                    default=False,
+                    help='Set tweets to be from the portuguese tab. '
+                    'Default = False')    
+    # TODO: add a new tab w/ template for adding new tabs
     # parser.add_argument('-co', '--communications', dest='communications', type=bool,
     #                 default=False,
     #                 help='Set tweets to be from the communications tab. '
@@ -225,11 +234,11 @@ def parse_args(argv=None):
 def main():
     """Tweet a lesson."""
 
-    # Get the arguments and prepare the tweet contents.
+    # TODO: Get the arguments and prepare the tweet contents.
     args = parse_args()
     print('grabbing tweet contents')
-    # add new tab here by adding a new args.NAME piece
-    tweet_contents = prepare_tweet(args.day_two, args.spanish, args.french, args.communications)
+    # TODO: add new tab here by adding a new args.NAME piece
+    tweet_contents = prepare_tweet(args.day_two, args.spanish, args.french, args.communications, args.portuguese)
     print('tweet contents grabbed')
     # Try to tweet. If it works, log the success. If it doesn't, log the stack
     # trace for debugging later.
