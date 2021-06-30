@@ -78,8 +78,9 @@ When ready to deploy to the heroku remote itself, you'll merge into the heroku b
 ```bash
 $ git checkout heroku
 $ git merge master
-$ git push heroku heroku:master
+$ git push --force heroku heroku:master
 ```
+Note: I added the --force flag because of our weird setup. Since we're using a sort of weird workflow it kept yelling at me that not all refs were shared.
 
 When in doubt, you can always run
 ```bash
