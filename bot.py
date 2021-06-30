@@ -12,7 +12,7 @@ import time
 
 # To add a new tab there are several spots to edit, marked in the script below with TODO.
 
-# For local testing you just run the script with regular arguments based on what language you're testing:
+# For local testing you just run the script with regular arguments based on what language you're testing (note that you must be on the heroku branch):
 # $ python bot.py -es True -t True
 # Heroku will add separate arguments for the scheduling, but this should immediately send a tweet out from the ProgHist account (or offer the opportunity to debug).
 
