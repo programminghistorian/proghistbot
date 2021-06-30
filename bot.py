@@ -1,3 +1,5 @@
+# coding=utf-8
+
 from __future__ import unicode_literals
 import os
 import sys
@@ -12,9 +14,16 @@ import time
 
 # To add a new tab there are several spots to edit, marked in the script below with TODO.
 
+
 # For local testing you just run the script with regular arguments based on what language you're testing (note that you must be on the heroku branch):
 # $ python bot.py -es True -t True
+# you'll also need to manually set ACCESS_TOKEN, ACCESS_TOKEN_SECRET, CONSUMER_KEY, CONSUMER_SECRET though. These can be found in the heroku settings page, but make sure you don't commit these to github.
 # Heroku will add separate arguments for the scheduling, but this should immediately send a tweet out from the ProgHist account (or offer the opportunity to debug).
+
+# ACCESS_TOKEN = "PASTE_HERE_IF_YOU_WANT_TO_TEST"
+# ACCESS_TOKEN_SECRET = "PASTE_HERE_IF_YOU_WANT_TO_TEST"
+# CONSUMER_KEY = "PASTE_HERE_IF_YOU_WANT_TO_TEST"
+# CONSUMER_SECRET = "PASTE_HERE_IF_YOU_WANT_TO_TEST"
 
 ACCESS_TOKEN = os.environ.get('ACCESS_TOKEN')
 ACCESS_TOKEN_SECRET = os.environ.get('ACCESS_TOKEN_SECRET')
@@ -96,7 +105,7 @@ def update_sheet_queue_after_tweeting(sheet, id_num):
     Add two to make the cells line up with the indexing of the data.
     Most recent tweet is marked with XY, so as to distinguish it from
     the rest of the previous tweets that are marked with X."""
-    
+
     cell_label = 'D' + str(int(id_num.values[0]) + 2)
     print('========')
     print('update_sheet_queue')
@@ -231,10 +240,11 @@ def parse_args(argv=None):
     #                 'Default = False')    
     return parser.parse_args(argv)
 
+
 def main():
     """Tweet a lesson."""
 
-    # TODO: Get the arguments and prepare the tweet contents.
+    # Get the arguments and prepare the tweet contents.
     args = parse_args()
     print('grabbing tweet contents')
     # TODO: add new tab here by adding a new args.NAME piece
