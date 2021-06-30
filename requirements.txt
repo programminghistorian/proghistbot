@@ -1,10 +1,6 @@
 appnope==0.1.0
 beautifulsoup4==4.5.3
-<<<<<<< HEAD
-bleach==2.0.0
-=======
 bleach==3.1.4
->>>>>>> 7eac044a180ca5ac9d3cdd8f1f4a93b433ae2f35
 bs4==0.0.1
 decorator==4.0.11
 entrypoints==0.2.2
@@ -22,17 +18,10 @@ jupyter-console==5.1.0
 jupyter-core==4.3.0
 lda==1.0.4
 MarkupSafe==1.0
-<<<<<<< HEAD
-mistune==0.7.4
-nbconvert==5.1.1
-nbformat==4.3.0
-notebook==4.4.1
-=======
 mistune==0.8.1
 nbconvert==5.1.1
 nbformat==4.3.0
 notebook==5.7.8
->>>>>>> 7eac044a180ca5ac9d3cdd8f1f4a93b433ae2f35
 numpy==1.12.1
 oauth2client==4.0.0
 oauthlib==2.0.2
@@ -49,11 +38,7 @@ pytest==3.0.7
 python-dateutil==2.6.0
 pyzmq==16.0.2
 qtconsole==4.3.0
-<<<<<<< HEAD
-requests==2.13.0
-=======
 requests==2.20.0
->>>>>>> 7eac044a180ca5ac9d3cdd8f1f4a93b433ae2f35
 requests-oauthlib==0.8.0
 simplegeneric==0.8.1
 six==1.10.0
