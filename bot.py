@@ -55,9 +55,9 @@ def get_tweet_contents_from_google(spanish=False, french=False, communications=F
     for working with."""
     scope = ['https://spreadsheets.google.com/feeds']
 
-    PROGHIST_GOOGLE_CREDENTIALS_JSON = json.loads(PROGHIST_GOOGLE_CREDENTIALS_JSON, strict=False)
+    keyfile_dict = json.loads(PROGHIST_GOOGLE_CREDENTIALS_JSON, strict=False)
     credentials = ServiceAccountCredentials.from_json_keyfile_dict(
-        PROGHIST_GOOGLE_CREDENTIALS_JSON, scope)
+        keyfile_dict, scope)
 
     gc = gspread.authorize(credentials)
     wks = gc.open_by_key('1o-C-3WwfcEYWipIFb112tkuM-XOI8pVVpA9_sag9Ph8')
