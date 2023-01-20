@@ -31,7 +31,7 @@ def rest(max_sleep):
 def masto_api():
     """Initialize Mastodon API, authorize, and return a usable object."""
     mastodon = Mastodon(
-        access_token = 'token.secret',
+        access_token = 'token_secret',
         api_base_url = 'https://hcommons.social/'
     )
 
@@ -42,7 +42,7 @@ def tweet(message):
     """Tweets a prepared message using the authorized API."""
     print(message)
     mastodon = masto_api()
-#    mastodon.status_post(message)
+    mastodon.status_post(message)
 
 # TODO: Add a new tab here w/ "title=False"
 def get_tweet_contents_from_google(spanish=False, french=False, communications=False, portuguese=False):
@@ -52,7 +52,7 @@ def get_tweet_contents_from_google(spanish=False, french=False, communications=F
     scope = ['https://spreadsheets.google.com/feeds']
 
     credentials = ServiceAccountCredentials.from_json_keyfile_name(
-        'proghist-google-credentials.json', scope)
+        'proghist_google_credentials_json', scope)
 
     gc = gspread.authorize(credentials)
     wks = gc.open_by_key('1o-C-3WwfcEYWipIFb112tkuM-XOI8pVVpA9_sag9Ph8')

@@ -6,7 +6,7 @@ Procfile
 bin/
 bot.py
 lib/
-proghist-google-credentials.json
+proghist_google_credentials_json
 pyvenv.cfg
 template.env
-token.secret
+token_secret
