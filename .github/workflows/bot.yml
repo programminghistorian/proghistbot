@@ -1,0 +1,131 @@
+name: ProgHist Mastodon Bot
+
+# 'on' is the trigger, in this case this Action will
+# be triggered using cron set at a 10 minutes interval.
+on:
+  schedule:
+  - cron: '0 17 * * 1'
+  - cron: '0 17 * * 2'
+  - cron: '0 17 * * 3'
+  - cron: '0 17 * * 4'
+  - cron: '0 17 * * 5'
+  - cron: '0 17 * * 6'
+  - cron: '0 17 * * 7'
+  - cron: '0 12 * * 4'
+
+# 'jobs' are the routines, we only have
+# one when the instance is built.
+jobs:
+  build:
+    # Our instance will use the latest available version of Ubuntu.
+    runs-on: ubuntu-latest
+
+    # These steps are run in the same order as are defined.
+    steps:
+      # actions checkout and python are pre-built actions
+      # that abstract commonly used tasks.
+      - uses: actions/checkout@v3
+
+      # The python action will set us a Python 3.8 (64-bit) instance.
+      - name: Setting up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+          architecture: "x64"
+
+      # Use PIP to install the dependencies and then run the script.
+      - name: English First Post
+        # Check which cron was triggered
+        if: github.event.schedule == '0 17 * * 1'
+        # But first we read the WEBHOOK secret and create an
+        # environment variable with the same name.
+        env:
+          TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
+          PROGHIST_GOOGLE_CREDENTIALS_JSON: ${{ secrets.PROGHIST_GOOGLE_CREDENTIALS_JSON }}
+        run: |
+          pip install -r requirements.txt
+          python bot.py
+
+      - name: English Second Post
+        # Check which cron was triggered
+        if: github.event.schedule == '0 17 * * 4'
+        # But first we read the WEBHOOK secret and create an
+        # environment variable with the same name.
+        env:
+          TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
+          PROGHIST_GOOGLE_CREDENTIALS_JSON: ${{ secrets.PROGHIST_GOOGLE_CREDENTIALS_JSON }}
+        run: |
+          pip install -r requirements.txt
+          python bot.py -t True
+
+      - name: Spanish First Post
+        # Check which cron was triggered
+        if: github.event.schedule == '0 17 * * 2'
+        # But first we read the WEBHOOK secret and create an
+        # environment variable with the same name.
+        env:
+          TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
+          PROGHIST_GOOGLE_CREDENTIALS_JSON: ${{ secrets.PROGHIST_GOOGLE_CREDENTIALS_JSON }}
+        run: |
+          pip install -r requirements.txt
+          python bot.py -es True
+
+      - name: Spanish Second Post
+        # Check which cron was triggered
+        if: github.event.schedule == '0 17 * * 5'
+        # But first we read the WEBHOOK secret and create an
+        # environment variable with the same name.
+        env:
+          TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
+          PROGHIST_GOOGLE_CREDENTIALS_JSON: ${{ secrets.PROGHIST_GOOGLE_CREDENTIALS_JSON }}
+        run: |
+          pip install -r requirements.txt
+          python bot.py -es True -t True
+
+      - name: French First Post
+        # Check which cron was triggered
+        if: github.event.schedule == '0 17 * * 3'
+        # But first we read the WEBHOOK secret and create an
+        # environment variable with the same name.
+        env:
+          TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
+          PROGHIST_GOOGLE_CREDENTIALS_JSON: ${{ secrets.PROGHIST_GOOGLE_CREDENTIALS_JSON }}
+        run: |
+          pip install -r requirements.txt
+          python bot.py -fr True
+          
+      - name: French Second Post
+        # Check which cron was triggered
+        if: github.event.schedule == '0 17 * * 6'
+        # But first we read the WEBHOOK secret and create an
+        # environment variable with the same name.
+        env:
+          TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
+          PROGHIST_GOOGLE_CREDENTIALS_JSON: ${{ secrets.PROGHIST_GOOGLE_CREDENTIALS_JSON }}
+        run: |
+          pip install -r requirements.txt
+          python bot.py -fr True -t True
+
+      - name: Portuguese First Post
+        # Check which cron was triggered
+        if: github.event.schedule == '0 12 * * 4'
+        # But first we read the WEBHOOK secret and create an
+        # environment variable with the same name.
+        env:
+          TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
+          PROGHIST_GOOGLE_CREDENTIALS_JSON: ${{ secrets.PROGHIST_GOOGLE_CREDENTIALS_JSON }}
+        run: |
+          pip install -r requirements.txt
+          python bot.py -pt True
+
+      - name: Portuguese Second Post
+        # Check which cron was triggered
+        if: github.event.schedule == '0 17 * * 7'
+        # But first we read the WEBHOOK secret and create an
+        # environment variable with the same name.
+        env:
+          TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
+          PROGHIST_GOOGLE_CREDENTIALS_JSON: ${{ secrets.PROGHIST_GOOGLE_CREDENTIALS_JSON }}
+        run: |
+          pip install -r requirements.txt
+          python bot.py -pt True -t True
