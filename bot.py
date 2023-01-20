@@ -4,6 +4,7 @@
 from __future__ import unicode_literals
 import os
 import sys
+import json
 import argparse
 from mastodon import Mastodon
 import random
@@ -19,9 +20,12 @@ import time
 
 # For local testing you just run the script with regular arguments based on what language you're testing (note that you must have the Google credentials in a JSON on your local machine):
 # $ python bot.py -es True -t True
-# You'll also need to manually create a secret token for the Mastodon account you'd like to post to. Make sure you don't post it to Github!
+# You'll also need to manually create a secret token for the Mastodon account you'd like to post to, plus adding a JSON string for the Google API credentials.  Make sure you don't post these to Github!
 # Github Actions will add separate arguments for the scheduling, but this should immediately send a tweet out from the ProgHist account (or offer the opportunity to debug).
 
+# Get secrets from Github Actions environment
+TOKEN_SECRET = os.environ["TOKEN_SECRET"]
+PROGHIST_GOOGLE_CREDENTIALS_JSON = os.environ["PROGHIST_GOOGLE_CREDENTIALS_JSON"]
 
 def rest(max_sleep):
     """Rest after tweeting - used when testing. """
@@ -31,7 +35,7 @@ def rest(max_sleep):
 def masto_api():
     """Initialize Mastodon API, authorize, and return a usable object."""
     mastodon = Mastodon(
-        access_token = 'token_secret',
+        access_token = TOKEN_SECRET,
         api_base_url = 'https://hcommons.social/'
     )
 
@@ -51,8 +55,9 @@ def get_tweet_contents_from_google(spanish=False, french=False, communications=F
     for working with."""
     scope = ['https://spreadsheets.google.com/feeds']
 
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(
-        'proghist_google_credentials_json', scope)
+    PROGHIST_GOOGLE_CREDENTIALS_JSON = json.loads(PROGHIST_GOOGLE_CREDENTIALS_JSON, strict=False)
+    credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+        PROGHIST_GOOGLE_CREDENTIALS_JSON, scope)
 
     gc = gspread.authorize(credentials)
     wks = gc.open_by_key('1o-C-3WwfcEYWipIFb112tkuM-XOI8pVVpA9_sag9Ph8')
