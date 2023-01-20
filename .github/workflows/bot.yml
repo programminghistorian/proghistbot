@@ -10,7 +10,7 @@ on:
   - cron: '0 17 * * 4'
   - cron: '0 17 * * 5'
   - cron: '0 17 * * 6'
-  - cron: '0 17 * * 7'
+  - cron: '0 17 * * 0'
   - cron: '0 12 * * 4'
 
 # 'jobs' are the routines, we only have
@@ -120,7 +120,7 @@ jobs:
 
       - name: Portuguese Second Post
         # Check which cron was triggered
-        if: github.event.schedule == '0 17 * * 7'
+        if: github.event.schedule == '0 17 * * 0'
         # But first we read the WEBHOOK secret and create an
         # environment variable with the same name.
         env:
