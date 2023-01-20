@@ -3,11 +3,8 @@ name: English Tweet Original
 # 'on' is the trigger, in this case this Action will
 # be triggered using cron set at a 10 minutes interval.
 on:
-  #  schedule:
-  #  - cron: "*/5 * * * *"
-  push:
-    branches:
-    - master
+  schedule:
+  - cron: "45 * * * *"
 
 # 'jobs' are the routines, we only have
 # one when the instance is built.
