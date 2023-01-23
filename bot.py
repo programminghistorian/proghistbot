@@ -1,10 +1,12 @@
+#! /usr/bin/env python3
 # coding=utf-8
 
 from __future__ import unicode_literals
 import os
 import sys
+import json
 import argparse
-from tweepy import OAuthHandler, API
+from mastodon import Mastodon
 import random
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -14,46 +16,37 @@ import time
 
 # To add a new tab there are several spots to edit, marked in the script below with TODO.
 
+# n.b. Since this script was original written as a Twitter bot, it uses the word "tweet" throughout, even though now its posts/toots on Mastodon.
 
-# For local testing you just run the script with regular arguments based on what language you're testing (note that you must be on the heroku branch):
+# For local testing you just run the script with regular arguments based on what language you're testing (note that you must have the Google credentials in a JSON on your local machine):
 # $ python bot.py -es True -t True
-# you'll also need to manually set ACCESS_TOKEN, ACCESS_TOKEN_SECRET, CONSUMER_KEY, CONSUMER_SECRET though. These can be found in the heroku settings page, but make sure you don't commit these to github.
-# Heroku will add separate arguments for the scheduling, but this should immediately send a tweet out from the ProgHist account (or offer the opportunity to debug).
+# You'll also need to manually create a secret token for the Mastodon account you'd like to post to, plus adding a JSON string for the Google API credentials.  Make sure you don't post these to Github!
+# Github Actions will add separate arguments for the scheduling, but this should immediately send a tweet out from the ProgHist account (or offer the opportunity to debug).
 
-# ACCESS_TOKEN = "PASTE_HERE_IF_YOU_WANT_TO_TEST"
-# ACCESS_TOKEN_SECRET = "PASTE_HERE_IF_YOU_WANT_TO_TEST"
-# CONSUMER_KEY = "PASTE_HERE_IF_YOU_WANT_TO_TEST"
-# CONSUMER_SECRET = "PASTE_HERE_IF_YOU_WANT_TO_TEST"
-
-ACCESS_TOKEN = os.environ.get('ACCESS_TOKEN')
-ACCESS_TOKEN_SECRET = os.environ.get('ACCESS_TOKEN_SECRET')
-CONSUMER_KEY = os.environ.get('CONSUMER_KEY')
-CONSUMER_SECRET = os.environ.get('CONSUMER_SECRET')
-
+# Get secrets from Github Actions environment
+TOKEN_SECRET = os.environ["TOKEN_SECRET"]
+PROGHIST_GOOGLE_CREDENTIALS_JSON = os.environ["PROGHIST_GOOGLE_CREDENTIALS_JSON"]
 
 def rest(max_sleep):
     """Rest after tweeting - used when testing. """
     time.sleep(random.random() * max_sleep)
 
 
-def twitter_api():
-    """Initialize Twitter API, authorize, and return a usable object."""
-    access_token = ACCESS_TOKEN
-    access_token_secret = ACCESS_TOKEN_SECRET
-    consumer_key = CONSUMER_KEY
-    consumer_secret = CONSUMER_SECRET
+def masto_api():
+    """Initialize Mastodon API, authorize, and return a usable object."""
+    mastodon = Mastodon(
+        access_token = TOKEN_SECRET,
+        api_base_url = 'https://hcommons.social/'
+    )
 
-    auth = OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
-    api = API(auth)
-    return api
+    return mastodon
 
 
 def tweet(message):
     """Tweets a prepared message using the authorized API."""
     print(message)
-    api = twitter_api()
-    api.update_status(status=message)
+    mastodon = masto_api()
+    mastodon.status_post(message)
 
 # TODO: Add a new tab here w/ "title=False"
 def get_tweet_contents_from_google(spanish=False, french=False, communications=False, portuguese=False):
@@ -62,8 +55,9 @@ def get_tweet_contents_from_google(spanish=False, french=False, communications=F
     for working with."""
     scope = ['https://spreadsheets.google.com/feeds']
 
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(
-        'proghist-google-credentials.json', scope)
+    keyfile_dict = json.loads(PROGHIST_GOOGLE_CREDENTIALS_JSON, strict=False)
+    credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+        keyfile_dict, scope)
 
     gc = gspread.authorize(credentials)
     wks = gc.open_by_key('1o-C-3WwfcEYWipIFb112tkuM-XOI8pVVpA9_sag9Ph8')
@@ -257,11 +251,11 @@ def main():
         tweet(tweet_contents)
         print('Success: ' + tweet_contents)
     except:
-        # catch in the logs on heroku
+        # catch in the logs
         print('Something went wrong')
         print('Fail: ' + tweet_contents)
         print(traceback.format_exc())
-    rest(600)
+    #rest(600)
 
 
 if __name__ == '__main__':

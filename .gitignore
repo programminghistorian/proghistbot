@@ -2,3 +2,11 @@ __pycache__
 .env
 gspread/
 errors.txt
+Procfile
+bin/
+bot.py
+lib/
+proghist_google_credentials_json
+pyvenv.cfg
+template.env
+token_secret
